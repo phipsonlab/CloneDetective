@@ -1,0 +1,18 @@
+Package: CloneDetective
+Type: Package
+Title: A package for interrogating clones
+Version: 0.1.0
+Author: Givanna Putri
+Maintainer: Givanna Putri <putri.g@wehi.edu.au>
+Description: A package for interrogating clones.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports: 
+    data.table,
+    ggplot2,
+    scales
+RoxygenNote: 7.2.3
