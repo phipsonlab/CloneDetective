@@ -3,7 +3,7 @@
 export(convert_count_to_proportion)
 export(count_retained_clones)
 export(draw_elbow_plot)
-export(get_top_barcodes)
+export(get_top_barcodes_and_cum_sum)
 export(project_clones)
 export(remove_clones_below_threshold)
 import(data.table)

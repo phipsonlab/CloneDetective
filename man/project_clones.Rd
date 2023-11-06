@@ -53,7 +53,7 @@ read_count = c(1, 5, 20, 10, 15, 12),
 clone_barcodes = c("ACGT", "CATG", "CATG", "ACGT", "ATGC", "TCGT")
 )
 
-projecting_clones(
+project_clones(
     count_data = toy_clone_counts,
     project_amnt = c(100),
     count_column = "read_count",

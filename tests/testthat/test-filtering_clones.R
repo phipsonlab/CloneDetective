@@ -155,10 +155,12 @@ test_that("get top clone barcodes works correctly", {
     expected_res <- data.table(
         sample_name = c(rep("test1", 2), rep("test2", 2)),
         read_count = c(20, 5, 15, 12),
-        clone_barcodes = c("CATG", "CATG", "ATGC", "TCGT")
+        clone_barcodes = c("CATG", "CATG", "ATGC", "TCGT"),
+        cum_sum_read_count = c(20, 25, 15, 27),
+        barcode_rank = as.integer(c(1, 2, 1, 2))
     )
 
-    res <- get_top_barcodes(
+    res <- get_top_barcodes_and_cum_sum(
         count_data = toy_clone_counts,
         top_threshold = 2,
         count_column = "read_count",
@@ -180,10 +182,12 @@ test_that("get top clone barcodes no group by works correctly", {
     expected_res <- data.table(
         sample_name = c("test1", "test2","test2"),
         read_count = c(20, 15, 12),
-        clone_barcodes = c("CATG", "ATGC", "TCGT")
+        clone_barcodes = c("CATG", "ATGC", "TCGT"),
+        cum_sum_read_count = c(20, 35, 47),
+        barcode_rank = as.integer(c(1, 2, 3))
     )
 
-    res <- get_top_barcodes(
+    res <- get_top_barcodes_and_cum_sum(
         count_data = toy_clone_counts,
         top_threshold = 3,
         count_column = "read_count"

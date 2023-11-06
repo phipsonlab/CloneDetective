@@ -49,3 +49,4 @@ test_that("clone projection no grouping works", {
     expect_equal(names(res), names(expected_res))
     expect_identical(res, expected_res, ignore_attr = TRUE)
 })
+

@@ -37,7 +37,7 @@
 #' clone_barcodes = c("ACGT", "CATG", "CATG", "ACGT", "ATGC", "TCGT")
 #' )
 #'
-#' projecting_clones(
+#' project_clones(
 #'     count_data = toy_clone_counts,
 #'     project_amnt = c(100),
 #'     count_column = "read_count",
@@ -101,3 +101,9 @@ convert_count_to_proportion <- function(count_data, count_column, grouping_col =
 
     return(res)
 }
+
+
+get_top_clones <- function(count_data, count_column, grouping_col = NA) {
+
+}
+

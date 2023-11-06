@@ -107,7 +107,7 @@ remove_clones_below_threshold <- function(count_data, threshold, count_column) {
 }
 
 
-#' Get top barcodes
+#' Get top barcodes and cumulative sum of the counts.
 #'
 #' Filter the count data to retain only the top x barcodes, where x is defined by top_threshold.
 #'
@@ -126,22 +126,27 @@ remove_clones_below_threshold <- function(count_data, threshold, count_column) {
 #' clone_barcodes = c("ACGT", "CATG", "CATG", "ACGT", "ATGC", "TCGT")
 #' )
 #'
-#' get_top_barcodes(
+#' get_top_barcodes_and_cum_sum(
 #'   count_data = toy_clone_counts,
 #'   top_threshold = 2,
 #'   count_column = "read_count",
 #'   grouping_col = "sample_name"
 #' )
 
-get_top_barcodes <- function(count_data, top_threshold, count_column,
+get_top_barcodes_and_cum_sum <- function(count_data, top_threshold, count_column,
                              grouping_col = NA) {
 
   if (is.na(grouping_col)) {
     count_data_top <- count_data[order(-get(count_column)), head(.SD, top_threshold)]
+    count_data_top[, cum_sum := cumsum(get(count_column))]
+    count_data_top[, barcode_rank := seq_len(.N)]
   } else {
     count_data_top <- count_data[order(-get(count_column)), head(.SD, top_threshold), by=c(grouping_col)]
+    count_data_top[, cum_sum := cumsum(get(count_column)), by=c(grouping_col)]
+    count_data_top[, barcode_rank := seq_len(.N), by=c(grouping_col)]
   }
 
+  setnames(count_data_top, "cum_sum", paste0("cum_sum_", count_column))
 
   return(count_data_top)
 }
