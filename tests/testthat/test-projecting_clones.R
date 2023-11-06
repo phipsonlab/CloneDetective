@@ -14,7 +14,7 @@ test_that("clone projection works", {
     expected_res[, projected_to_100 := 100 * read_count_proportion]
     expected_res[, projected_to_200 := 200 * read_count_proportion]
 
-    res <- projecting_clones(
+    res <- project_clones(
         count_data = toy_clone_counts,
         project_amnt = c(100, 200),
         count_column = "read_count",
@@ -40,7 +40,7 @@ test_that("clone projection no grouping works", {
     expected_res[, read_count_proportion := read_count / sum_read_counts]
     expected_res[, projected_to_100 := 100 * read_count_proportion]
 
-    res <- projecting_clones(
+    res <- project_clones(
         count_data = toy_clone_counts,
         project_amnt = c(100),
         count_column = "read_count"

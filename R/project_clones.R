@@ -44,7 +44,7 @@
 #'     grouping_col = "sample_name"
 #' )
 
-projecting_clones <- function(count_data, count_column,
+project_clones <- function(count_data, count_column,
                               grouping_col = NA,
                               project_amnt = c(10000)) {
 
