@@ -12,11 +12,20 @@
 #' If `grouping_col` is specified, the proportion will be calculated with respect
 #' to the total number of cells in each group.
 #'
+#' @details
+#' The parameter `project_amnt` allows you to specify the desired number of cells
+#' for projection.
+#' You can provide a numeric vector containing one or more values, indicating the
+#' number of cells you want to project your data onto.
+#' For example, if you want to project to 10,000 and 20,000 cells,
+#' you can create a vector `c(10000, 20000)` and pass it as the value for `project_amnt`.
+#'
+#'
 #' @param count_data A data.table containing clone barcode count data.
 #' @param grouping_col A character string, default NA. If provided, the projection
 #' is repeated for each group defined by this column.
 #' @param count_column A character string specifying the column storing clone barcode counts.
-#' @param project_amnt A numeric value indicating the number of cells to project to.
+#' @param project_amnt A vector of numeric indicating the number of cells to project to.
 #'
 #' @return A modified data.table with projected cell counts.
 #' @export
@@ -30,23 +39,28 @@
 #'
 #' projecting_clones(
 #'     count_data = toy_clone_counts,
-#'     project_amnt = 100,
+#'     project_amnt = c(100),
 #'     count_column = "read_count",
 #'     grouping_col = "sample_name"
 #' )
 
 projecting_clones <- function(count_data, count_column,
                               grouping_col = NA,
-                              project_amnt = 10000) {
+                              project_amnt = c(10000)) {
 
     count_data_proportion <- convert_count_to_proportion(
         count_data = count_data,
         grouping_col = grouping_col,
         count_column = count_column
     )
-    count_data_proportion[, projection := read_proportion * project_amnt]
+
+
+    for (amnt in project_amnt) {
+        count_data_proportion[, projection := read_proportion * amnt]
+        setnames(count_data_proportion, "projection", paste0("projected_to_", amnt))
+    }
+
     setnames(count_data_proportion, "read_proportion", paste0(count_column, "_proportion"))
-    setnames(count_data_proportion, "projection", paste0("projected_to_", project_amnt))
 
     return(count_data_proportion)
 }
