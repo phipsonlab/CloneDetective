@@ -26,6 +26,15 @@
 #' is repeated for each group defined by this column.
 #' @param count_column A character string specifying the column storing clone barcode counts.
 #' @param project_amnt A vector of numeric indicating the number of cells to project to.
+#' @param confidence_threshold A numeric value indicating the confidence level for
+#' clone barcode detection in cells.
+#' It should be between 0 (exclusive) and 1 (inclusive).
+#' This parameter allows you to specify how confident you are that you will be able to
+#' detect clone barcodes for the cells in future scRNAseq experiment.
+#' It ranges from 0 (indicating no confidence) to 1 (indicating complete confidence).
+#' For example, if you are 70% confident that all cells will have their clone barcodes
+#' detected, you should set the `confidence_threshold` to 0.7.
+#'
 #'
 #' @return A modified data.table with projected cell counts.
 #' @export
@@ -45,8 +54,9 @@
 #' )
 
 project_clones <- function(count_data, count_column,
-                              grouping_col = NA,
-                              project_amnt = c(10000)) {
+                           grouping_col = NA,
+                           project_amnt = c(10000),
+                           confidence_threshold = 1.0) {
 
     count_data_proportion <- convert_count_to_proportion(
         count_data = count_data,
@@ -56,8 +66,26 @@ project_clones <- function(count_data, count_column,
 
 
     for (amnt in project_amnt) {
-        count_data_proportion[, projection := read_proportion * amnt]
-        setnames(count_data_proportion, "projection", paste0("projected_to_", amnt))
+        count_data_proportion[, projection := round(read_proportion * amnt)]
+
+        # sample the count using binomial sampling with confidence of confidence_threshold
+        # if it is less than 1.0.
+        # this is to simulate cases where there are cells with no clones detected.
+
+        if (confidence_threshold < 1.0) {
+            projected_with_conf <- rbinom(
+                n = nrow(count_data_proportion),
+                size = count_data_proportion$projection,
+                prob = confidence_threshold
+            )
+            count_data_proportion$projection <- projected_with_conf
+        }
+
+        setnames(
+            x = count_data_proportion,
+            old = "projection",
+            new = paste0("projected_", amnt, "_confidence_", gsub("\\.", "_", as.character(confidence_threshold)))
+        )
     }
 
     setnames(count_data_proportion, "read_proportion", paste0(count_column, "_proportion"))
@@ -100,10 +128,5 @@ convert_count_to_proportion <- function(count_data, count_column, grouping_col =
     }
 
     return(res)
-}
-
-
-get_top_clones <- function(count_data, count_column, grouping_col = NA) {
-
 }
 
