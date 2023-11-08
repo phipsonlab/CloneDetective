@@ -1,13 +1,29 @@
 test_that("get clone barcode expression works", {
     cell_clone_bcode_dt <- data.table(
-        CellBarcode = c("A", "B", "A", "B", "C", "C", "C"),
-        CloneBarcode = c("AA", "AA", "AA", "AA", "BB", "BB", "CC")
+        CellBarcode = c(
+            rep("A", 2),
+            rep("B", 4),
+            rep("C", 5),
+            rep("D", 7)
+        ),
+        CloneBarcode = c(
+            rep("AA", 2),
+            rep("AA", 3), "BB",
+            rep("CC", 4), "DD",
+            rep("XX", 2), rep("YY", 3), rep("ZZ", 2)
+        ),
+        UMI = c(
+            rep("A1", 2),
+            rep("B1", 2), "B2", "B3",
+            rep("C1", 3), "C2", "C1",
+            rep("D1", 5), rep("D2", 2)
+        )
     )
 
     expected_res <- data.table(
-        CellBarcode = c("A", "B", "C", "C"),
-        CloneBarcode = c("AA", "AA", "BB", "CC"),
-        n_reads = as.integer(c(2, 2, 2, 1))
+        CellBarcode = c("A", "B", "B", "C", "D"),
+        CloneBarcode = c("AA", "AA", "BB", "CC", "ZZ"),
+        n_reads = as.integer(c(1,2,1,2,1))
     )
 
     res <- get_clone_barcodes_exp(cell_clone_bcode_dt)
@@ -163,6 +179,7 @@ test_that("get_cells_clones_assignment works", {
 
         )
     )
+    cell_clone_reads_dt[, UMI := seq_len(nrow(cell_clone_reads_dt))]
 
     res <- get_cells_clones_assignment(
         valid_cells_bcodes = c("A", "B", "C", "D", "E"),
@@ -215,6 +232,7 @@ test_that("get_cells_clones_assignment with more than 0.5 threshold works", {
             rep(1, 4), rep(0, 3)
         )
     )
+    cell_clone_reads_dt[, UMI := seq_len(nrow(cell_clone_reads_dt))]
 
     res <- get_cells_clones_assignment(
         valid_cells_bcodes = c("A", "B", "C", "D", "E", "F"),

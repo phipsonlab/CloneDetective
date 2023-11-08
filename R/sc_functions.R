@@ -9,20 +9,69 @@
 #' @export
 #'
 #' @examples
+#' @importFrom purrr pmap
 get_clone_barcodes_exp <- function(cell_clone_bcode_dt,
                                    cell_bcode_col = "CellBarcode",
                                    clone_bcode_col = "CloneBarcode",
-                                   sample_col = NA) {
+                                   umi_col = "UMI",
+                                   sample_col = NA,
+                                   umi_clone_consensus_threshold = 0.7) {
 
     if (is.na(sample_col)) {
-        grouping_col <- c(cell_bcode_col, clone_bcode_col)
+        cell_clone_bcode_list <- list(dt = cell_clone_bcode_dt)
     } else {
-        grouping_col <- c(cell_bcode_col, clone_bcode_col, sample_col)
+        cell_clone_bcode_list <- split(cell_clone_bcode_dt, by = c(sample_col))
     }
 
-    clone_exp <- cell_clone_bcode_dt[, .(n_reads = .N), by=grouping_col]
+    clone_exp_list <- pmap(list(cell_clone_bcode_list, names(cell_clone_bcode_list)),
+                           function(cell_clone_umi_dt, sample_name) {
+        n_reads_per_cell_clone_umi <- cell_clone_umi_dt[, .(n_reads = .N), by=c(cell_bcode_col, clone_bcode_col, umi_col)]
 
-    return(clone_exp)
+        # to deal with problematic cells, that is cells that have
+        # multiple reads with the same UMI and but they all don't mapped to the same clone.
+        n_clones_per_cell_umi <- cell_clone_umi_dt[, .(n_clones_found = uniqueN(CloneBarcode)), by = c(cell_bcode_col, umi_col)]
+        problematic_cells <- n_clones_per_cell_umi[n_clones_found > 1]
+
+        # so we can see how many reads are mapped to which clone for all the reads
+        # that have the same UMI but for the same cell.
+        problematic_cells_info <- merge.data.table(
+            x = problematic_cells,
+            y = n_reads_per_cell_clone_umi
+        )
+
+
+        # let's retain only clones which have clear consensus.
+        # i.e. 6 reads, 5 reads map to A, 1 read maps to B, clearly A is the winner
+        # as 80% of the reads are mapped to A.
+        # Set 80% as parameter.
+        problematic_cells_info[, prop_reads := n_reads / sum(n_reads), by = c(cell_bcode_col, umi_col)]
+        problematic_cells_to_retain <- problematic_cells_info[prop_reads > umi_clone_consensus_threshold,]
+        problematic_cells_to_retain[, prop_reads := NULL]
+
+        # easier ones where reads with the same umi all map to the same clone.
+        non_problematic_cells <- n_clones_per_cell_umi[n_clones_found == 1]
+        non_problematic_cells_info <- merge.data.table(
+            x = non_problematic_cells,
+            y = n_reads_per_cell_clone_umi
+        )
+
+        n_reads_per_cell_clone_umi_clean <- rbind(
+            unique(non_problematic_cells_info, by = c(cell_bcode_col, umi_col)),
+            problematic_cells_to_retain
+        )
+
+        clones_exp <- n_reads_per_cell_clone_umi_clean[, .(n_reads = .N), by=c(cell_bcode_col, clone_bcode_col)]
+
+        if (! is.na(sample_col)) {
+            clones_exp[, samp := sample_name]
+            setnames(clones_exp, "samp", sample_col)
+        }
+        return(clones_exp)
+    })
+
+    clone_exp_list <- rbindlist(clone_exp_list)
+
+    return(clone_exp_list)
 }
 
 #' Title
