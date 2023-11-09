@@ -26,7 +26,7 @@ test_that("get clone barcode expression works", {
         n_reads = as.integer(c(1,2,1,2,1))
     )
 
-    res <- get_clone_barcodes_exp(cell_clone_bcode_dt)
+    res <- generate_cell_clone_barcode_matrix(cell_clone_bcode_dt)
 
     expect_equal(names(res), names(expected_res))
     expect_identical(res, expected_res, ignore_attr = TRUE)
@@ -35,7 +35,7 @@ test_that("get clone barcode expression works", {
 
 test_that("count clone barcodes per cell works", {
 
-    cell_clone_bcode_exp <- data.table(
+    cell_by_clone_matrix <- data.table(
         CellBarcode = c("A", "B", "C", "C"),
         CloneBarcode = c("AA", "AA", "BB", "CC"),
         n_reads = as.integer(c(2, 2, 2, 1))
@@ -43,7 +43,7 @@ test_that("count clone barcodes per cell works", {
 
     res <- count_clones_per_cells(
         valid_cells_bcodes = c("B", "C", "D"),
-        cell_clone_bcode_exp = cell_clone_bcode_exp,
+        cell_by_clone_matrix = cell_by_clone_matrix,
         cell_bcode_col = "CellBarcode"
     )
 
@@ -59,7 +59,7 @@ test_that("count clone barcodes per cell works", {
 
 test_that("count clone barcodes per cell for treemap works", {
 
-    cell_clone_bcode_exp <- data.table(
+    cell_by_clone_matrix <- data.table(
         CellBarcode = c("A", "B", "C", "C"),
         CloneBarcode = c("AA", "AA", "BB", "CC"),
         n_reads = as.integer(c(2, 2, 2, 1))
@@ -67,7 +67,7 @@ test_that("count clone barcodes per cell for treemap works", {
 
     res <- count_clones_per_cells_for_treemap(
         valid_cells_bcodes = c("B", "C", "D"),
-        cell_clone_bcode_exp = cell_clone_bcode_exp,
+        cell_by_clone_matrix = cell_by_clone_matrix,
         cell_bcode_col = "CellBarcode"
     )
 
@@ -84,7 +84,7 @@ test_that("count clone barcodes per cell for treemap works", {
 
 test_that("find_and_rank_clones_in_multiclone_cells works", {
 
-    cell_clone_bcode_exp <- data.table(
+    cell_by_clone_matrix <- data.table(
         CellBarcode = c("A", "B", "B", "C", "C", "C"),
         CloneBarcode = c("AA", "AA", "BB", "CC", "DD", "EE"),
         n_reads = as.integer(c(2, 2, 1, 1, 2, 3))
@@ -92,14 +92,14 @@ test_that("find_and_rank_clones_in_multiclone_cells works", {
 
     clone_cnts_per_cell <- count_clones_per_cells(
         valid_cells_bcodes = c("A", "B", "C"),
-        cell_clone_bcode_exp = cell_clone_bcode_exp,
+        cell_by_clone_matrix = cell_by_clone_matrix,
         cell_bcode_col = "CellBarcode"
     )
 
     res <- find_and_rank_clones_in_multiclone_cells(
         clone_count_per_cell = clone_cnts_per_cell,
         cell_bcode_col = "CellBarcode",
-        cell_clone_bcode_exp = cell_clone_bcode_exp
+        cell_by_clone_matrix = cell_by_clone_matrix
     )
 
     expected_res <- data.table(
@@ -193,6 +193,7 @@ test_that("get_cells_clones_assignment works", {
         CellBarcode = c("A", "B", "C", "D", "E"),
         CloneBarcode = c("AA", "BB1", "CC1", "CC1", NA),
         n_reads = c(6L, 4L, 2L, 2L, NA),
+        criteria = as.factor(c("single_clone", "dominant_clone_moreThan_0_5", "clone_from_edit_distance", "clone_from_edit_distance", "no_clones_found")),
         prop_reads = c(NA, 4/7, 2/4, 2/5, NA),
         sum_bcode_edit_dist = c(NA, NA, 1, 0, NA),
         mean_bcode_edit_dist = c(NA, NA, 1/2, 0, NA)
@@ -247,6 +248,7 @@ test_that("get_cells_clones_assignment with more than 0.5 threshold works", {
         CellBarcode = c("A", "B", "C", "D", "E", "F"),
         CloneBarcode = c("AA", "BB1", "CC1", "CC1", "EE2", NA),
         n_reads = c(6L, 6L, 2L, 2L, 3L, NA),
+        criteria = as.factor(c("single_clone", "dominant_clone_moreThan_0_5", rep("clone_from_edit_distance", 3), "no_clones_found")),
         prop_reads = c(NA, 6/7, 2/4, 2/5, 3/7, NA),
         sum_bcode_edit_dist = c(NA, NA, 1, 0, 0, NA),
         mean_bcode_edit_dist = c(NA, NA, 1/2, 0, 0, NA)

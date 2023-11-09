@@ -27,6 +27,8 @@ A filtered data.table with only the top clone barcodes.
 Filter the count data to retain only the top x barcodes, where x is defined by top_threshold.
 }
 \examples{
+library(data.table)
+
 toy_clone_counts <- data.table(
 sample_name = c(rep("test1", 3), rep("test2", 3)),
 read_count = c(1, 5, 20, 10, 15, 12),

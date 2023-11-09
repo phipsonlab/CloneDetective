@@ -14,5 +14,8 @@ Config/testthat/edition: 3
 Imports: 
     data.table,
     ggplot2,
-    scales
+    purrr,
+    scales,
+    scater,
+    treemapify
 RoxygenNote: 7.2.3

@@ -6,13 +6,13 @@
 #' and anticipate the abundance of clone barcodes (i.e., how many clone barcodes
 #' with a substantial number of cells).
 #'
+#' @details
 #' How this projection is done: For each clone barcode, we compute their proportion,
 #' and then multiply the proportion by the number of cells to project to
 #' (specified by the `project_amnt` parameter).
 #' If `grouping_col` is specified, the proportion will be calculated with respect
 #' to the total number of cells in each group.
 #'
-#' @details
 #' The parameter `project_amnt` allows you to specify the desired number of cells
 #' for projection.
 #' You can provide a numeric vector containing one or more values, indicating the
@@ -32,7 +32,7 @@
 #' This parameter allows you to specify how confident you are that you will be able to
 #' detect clone barcodes for the cells in future scRNAseq experiment.
 #' It ranges from 0 (indicating no confidence) to 1 (indicating complete confidence).
-#' For example, if you are 70% confident that all cells will have their clone barcodes
+#' For example, if you are 70\% confident that all cells will have their clone barcodes
 #' detected, you should set the `confidence_threshold` to 0.7.
 #'
 #'
@@ -40,18 +40,25 @@
 #' @export
 #'
 #' @examples
+#' library(data.table)
+#'
 #' toy_clone_counts <- data.table(
 #' sample_name = c(rep("test1", 3), rep("test2", 3)),
 #' read_count = c(1, 5, 20, 10, 15, 12),
 #' clone_barcodes = c("ACGT", "CATG", "CATG", "ACGT", "ATGC", "TCGT")
 #' )
 #'
-#' project_clones(
+#' res <- project_clones(
 #'     count_data = toy_clone_counts,
 #'     project_amnt = c(100),
 #'     count_column = "read_count",
 #'     grouping_col = "sample_name"
 #' )
+#'
+#' res
+#'
+#' @import stats
+#'
 
 project_clones <- function(count_data, count_column,
                            grouping_col = NA,
@@ -66,13 +73,15 @@ project_clones <- function(count_data, count_column,
 
 
     for (amnt in project_amnt) {
-        count_data_proportion[, projection := round(read_proportion * amnt)]
+        count_data_proportion[, projection := read_proportion * amnt]
 
         # sample the count using binomial sampling with confidence of confidence_threshold
         # if it is less than 1.0.
         # this is to simulate cases where there are cells with no clones detected.
 
         if (confidence_threshold < 1.0) {
+            # need to do rounding as rbinom is stupid and need integers
+            count_data_proportion[, projection := round(projection)]
             projected_with_conf <- rbinom(
                 n = nrow(count_data_proportion),
                 size = count_data_proportion$projection,
@@ -108,6 +117,8 @@ project_clones <- function(count_data, count_column,
 #' @export
 #'
 #' @examples
+#' library(data.table)
+#'
 #' toy_clone_counts <- data.table(
 #' sample_name = c(rep("test1", 2), rep("test2", 3)),
 #' read_count = c(1, 5, 10, 15, 20)
@@ -118,6 +129,7 @@ project_clones <- function(count_data, count_column,
 #'     grouping_col = "sample_name",
 #'     count_column = "read_count"
 #' )
+#'
 convert_count_to_proportion <- function(count_data, count_column, grouping_col = NA) {
     res <- copy(count_data)
 

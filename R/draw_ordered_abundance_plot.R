@@ -1,12 +1,11 @@
-#' Draw elbow plot
+#' Draw ordered abundance plot
 #'
-#' The elbow plot shows the proportion of barcodes' frequency.
-#' We name this elbow plot as the final plot resembles an elbow.
+#' The ordered abundance plot shows the proportion of barcodes' frequency.
 #'
 #' @param count_data A data.table where each row corresponds to a clone barcode.
 #' @param y_axis_column The column which data to display in y-axis.
 #' Note, the numeric barcode ID will also be ordered based on this.
-#' @param colour_column A character string, default NA. If provided, indicates the column to colour the elbow by.
+#' @param colour_column A character string, default NA. If provided, indicates the column to colour the plot by.
 #' @param facet_column A character string, default NA. If provided, indicates the column which value separates the plots into column.
 #' @param facet_row A character string, default NA. If provided, indicates the column which value separates the plots into row
 #'
@@ -17,20 +16,22 @@
 #' @export
 #'
 #' @examples
+#' library(data.table)
+#'
 #' toy_clone_counts <- data.table(
 #'     treatment = c(rep("treat1", 4), rep("treat2", 4)),
 #'     replicate = rep(c(rep("rep1", 2), rep("rep2", 2)), 2),
 #'     read_count = c(20, 10, 15, 2, 3, 30, 15, 20)
 #' )
-#' draw_elbow_plot(
+#' draw_ordered_abundance_plot(
 #'     count_data = toy_clone_counts,
 #'     count_column = "read_count",
-#'     elbow_grouping_col = "replicate",
-#'     plot_grouping_col = "treatment",
+#'     facet_column = "replicate",
+#'     facet_row = "treatment",
 #'     y_axis_column = 'read_count'
 #' )
 #'
-draw_elbow_plot <- function(count_data, y_axis_column,
+draw_ordered_abundance_plot <- function(count_data, y_axis_column,
                             colour_column=NA,
                             facet_column=NA,
                             facet_row=NA) {
@@ -126,6 +127,8 @@ draw_elbow_plot <- function(count_data, y_axis_column,
 #'
 #' @return A data.table with numerical ID for each clone barcode.
 #'
+#' @keywords internal
+#'
 assign_numeric_barcode_id <- function(count_data, count_column,
                                       elbow_grouping_col = NA,
                                       plot_grouping_col = NA) {
@@ -188,6 +191,8 @@ assign_numeric_barcode_id <- function(count_data, count_column,
 #' @param count_column A character indicating the column storing the count of the clone barcodes.
 #'
 #' @return A new data.table
+#'
+#' @keywords internal
 #'
 assign_numeric_barcode_id_multiple_elbows <- function(all_elbow_data, elbow_grouping_col, count_column) {
 

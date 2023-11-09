@@ -23,6 +23,8 @@ A data.table with clones above the threshold.
 Removes clones with counts strictly less than the specified threshold.
 }
 \examples{
+library(data.table)
+
 toy_clone_counts <- data.table(
 sample_name = c(rep("test1", 2), rep("test2", 3)),
 read_count = c(1, 5, 10, 15, 20),

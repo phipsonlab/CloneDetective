@@ -11,9 +11,10 @@
 #'
 #' @return A data.table containing the counts of clones that meet or exceed the specified threshold.
 #' @import data.table
-#' @export
 #'
 #' @examples
+#' library(data.table)
+#'
 #' toy_clone_counts <- data.table(
 #' sample_name = c(rep("test1", 2), rep("test2", 3)),
 #' clone_barcode = c("A", "B", "C", "D", "E"),
@@ -27,6 +28,7 @@
 #'   grouping_col = "sample_name"
 #' )
 #'
+#' @export
 count_retained_clones <- function(count_data, thresholds, count_column,
                                   grouping_col = NA) {
   count_data_dt <- as.data.table(count_data)
@@ -85,9 +87,10 @@ count_retained_clones <- function(count_data, thresholds, count_column,
 #'
 #' @return A data.table with clones above the threshold.
 #' @import data.table
-#' @export
 #'
 #' @examples
+#' library(data.table)
+#'
 #' toy_clone_counts <- data.table(
 #' sample_name = c(rep("test1", 2), rep("test2", 3)),
 #' read_count = c(1, 5, 10, 15, 20),
@@ -99,6 +102,8 @@ count_retained_clones <- function(count_data, thresholds, count_column,
 #'   threshold = 2,
 #'   count_column = "read_count"
 #' )
+#'
+#' @export
 #'
 remove_clones_below_threshold <- function(count_data, threshold, count_column) {
   count_data_dt <- as.data.table(count_data)
@@ -120,6 +125,8 @@ remove_clones_below_threshold <- function(count_data, threshold, count_column) {
 #' @export
 #'
 #' @examples
+#' library(data.table)
+#'
 #' toy_clone_counts <- data.table(
 #' sample_name = c(rep("test1", 3), rep("test2", 3)),
 #' read_count = c(1, 5, 20, 10, 15, 12),

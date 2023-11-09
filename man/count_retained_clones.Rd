@@ -24,6 +24,8 @@ This function calculates the number of clones with at least a specified number o
 Clones with fewer cells than the threshold are excluded from the count.
 }
 \examples{
+library(data.table)
+
 toy_clone_counts <- data.table(
 sample_name = c(rep("test1", 2), rep("test2", 3)),
 clone_barcode = c("A", "B", "C", "D", "E"),

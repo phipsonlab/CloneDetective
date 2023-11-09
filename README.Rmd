@@ -1,3 +1,0 @@
-# CloneDetective
-
-R package to interrogate clones frequency.

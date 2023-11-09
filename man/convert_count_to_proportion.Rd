@@ -23,6 +23,8 @@ If `grouping_col` is specified, the proportion will be calculated with respect
 to the total number of cells in each group.
 }
 \examples{
+library(data.table)
+
 toy_clone_counts <- data.table(
 sample_name = c(rep("test1", 2), rep("test2", 3)),
 read_count = c(1, 5, 10, 15, 20)
@@ -33,4 +35,5 @@ convert_count_to_proportion(
     grouping_col = "sample_name",
     count_column = "read_count"
 )
+
 }
