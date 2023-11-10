@@ -1,0 +1,331 @@
+---
+title: "Analyse NGS data using CloneDetective"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{analyse_ngs_data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+This vignette focuses on using the package to analyse NGS data.
+NGS data refers to lineage tracing DNA barcoding data which exclusively sequences 
+clone barcode reads using Next Generation Sequencing (hence called NGS data).
+
+We will go through how to analyse clone barcode distributions from NGS data which 
+can inform the design of future scRNAseq experiments.
+
+# Setup
+
+In addition to CloneDetective we’ll load the following packages:
+
+* **data.table**, to read in CSV file and manipulate them.
+* **ggplot2**, in case we want to customise the ggplot objects created by CloneDetective.
+* **scales**, in case we want to customise the scale of the ggplot objects created by CloneDetective.
+
+```{r setup}
+library(CloneDetective)
+library(data.table)
+library(ggplot2)
+library(scales)
+```
+
+# Load the NGS data
+
+Before we delve into investigating what our NGS data looks like, we have to load it in first.
+
+Assuming you have used [NextClone](https://github.com/phipsonlab/NextClone) to extract 
+the clone barcodes from your raw FASTQ files,
+you will now have a CSV file where each row corresponds to a unique clone barcode 
+and its frequency in the sample. 
+
+If you have used other pipeline to extract (which you are more than welcomed to),
+you will have to wrangle the output such that you get the aforementioned CSV file.
+
+For the purpose of this vignette, I have randomly sampled 4000 clone barcodes
+from the 8k and 10k NGS data we used in our paper.
+
+Let's load it up using `data.table` and take a peek inside using the `head` function.
+The data is included in the package in `extdata` folder which we can located using
+`system.file` function.
+
+```{r}
+clones_nxclone <- fread(
+  system.file("extdata", "ngs_clone_barcode_counts_subsampled.csv", 
+              package = "CloneDetective")
+)
+
+
+head(clones_nxclone)
+```
+
+Let's quickly go through what the columns are:
+
+* **sample_name**: the sample the clone barcode came from. We have 2 samples for this
+dataset, 8k and 10k. 
+* **known_barcode**: the clone barcodes in our data.
+* **read_count**: the number of reads detected for each clone. Since we only sequence
+the clone barcode, you can treat this as the number of cells associated with a given
+clone barcode.
+
+# Analyse clone barcode distributions
+
+CloneDetective offers functions to count the number of clone barcodes in the dataset 
+and to filter out clones with low abundance based on a predefined cell count threshold. 
+
+To do this, we have to first specify the filtering thresholds, i.e. the numeric vector listing 
+the minimum cell counts required for a clone to be included in the count. 
+For this example, we will set the thresholds to 1, 20, 200, 1000 to see how many clones
+we get with at least 1, 20, 200, 1000 cells.
+
+```{r}
+thresholds <- c(1, 20, 200, 1000)
+```
+
+Then we will count how many clones with 1, 20, 200, 1000 cells.
+
+```{r}
+n_barcodes_nxclone <- count_retained_clones(
+    count_data = clones_nxclone,
+    thresholds = thresholds,
+    grouping_col = "sample_name",
+    count_column = "read_count"
+)
+```
+
+The `grouping_col` parameter essentially tells the function to repeat the counting procedure for 
+each unique value in the **sample_name** column of our clone data (`clones_nxclone`).
+The `count_column` tells the function which column contains the number of cells detected
+for each clone.
+
+Let's take a peak at the result.
+
+```{r}
+n_barcodes_nxclone
+```
+
+Each row is a sample, and each column tells you how many clones we get with at least
+1, 20, 200, 1000 cells.
+Remember, we are using sub-sampled NGS data, that is why the `at_least_1_cells` column
+for both samples have exactly 4,000 clones.
+
+This information is useful to see how many reasonably sized clones we get in our NGS data.
+Often, it is not even worthwhile keeping clones that have too little cells.
+To remove them, we can use the `remove_clones_below_threshold` function.
+
+```{r}
+clones_nxclone_filtered <- remove_clones_below_threshold(
+    count_data = clones_nxclone,
+    threshold = 20,
+    count_column = "read_count"
+)
+```
+
+Let's see how many clones were removed using the `table` function which is a neat
+little function that count the number of occurences in a vector.
+
+```{r}
+table(clones_nxclone_filtered$sample_name)
+```
+
+While these are all super useful, it is even better if we can look at the proportion of cells 
+in each clone (against the total number of cells in the sample), and illustrate this 
+as an ordered abundance plot. 
+Such plots are insightful for determining whether clones proliferated uniformly or 
+if some clones were more dominant, potentially outcompeting and restricting the expansion of others.
+
+We can draw the plot using `draw_ordered_abundance_plot`, but before we do that,
+we need to convert our the cell count to proportion.
+We can do this using `convert_count_to_proportion` function.
+Let's run all of that and add a bit of customisation to our plot to make it look pretty.
+
+```{r}
+clones_nxclone_filtered <- convert_count_to_proportion(
+  count_data = clones_nxclone_filtered,
+  grouping_col = "sample_name",
+  count_column = "read_count"
+)
+
+
+plt <- draw_ordered_abundance_plot(
+  count_data = clones_nxclone_filtered, 
+  facet_column = "sample_name",
+  y_axis_column = "read_proportion"
+)
+plt <- plt +
+  geom_point(size=0.5, colour='red') +
+  labs(
+    title = "Proportion of cells assigned to each barcode",
+    subtitle = "Barcode IDs are numerically assigned in order of read proportion",
+    x = "Numerical barcode ID",
+    y = "Proportion of cells per sample"
+  )
+plt
+```
+
+From this plot, you can see that the 10k sample looks even, which means the clones
+are expanding evenly.
+However, for the 8k sample, we have one clone (one outlier dot at around 0.015 mark
+at the y-axis) which seems to have expanded much more than others.
+The proportion of cells belonging to this clone is much much more than others.
+
+For the future, it may be best to not use the 8k sample because of this
+dominant clone restricting the space available for others to grow.
+
+# Using NGS data to plan future scRNAseq experiment
+
+We can use the calculated cell proportions above to forecast clonal abundance for 
+future scRNAseq experiments. 
+This is helpful for estimating the number of cells to sequence for a given clonal 
+library in order to maximise the chance of obtaining a reasonable representation of clones. 
+For example, say we plan to sequence 10,000 or 20,000 cells.
+Can we reasonably estimate how many cells will be obtained per clone? Yes we can.
+
+First thing first though, we need to do the estimation.
+We can do this using the `project_clones` function.
+
+```{r}
+clones_nxclone_proportion <- project_clones(
+  count_data = clones_nxclone,
+  grouping_col = "sample_name",
+  count_column = "read_count",
+  project_amnt = c(10000, 20000)
+)
+```
+
+You may have noticed by now that many functions in the package use the same parameter names.
+They indeed do, and we intentionally do this so to keep things simple.
+The only new parameter here is `project_amnt` which if you look at the values, you
+may have guessed what they represent, the number of cells to project our cell proportions to.
+
+Let's take quick peek into this.
+
+```{r}
+head(clones_nxclone_proportion)
+```
+
+We have 2 extra columns now (the **read_count_proportion** column was computed using
+`convert_count_to_proportion` in the previous section).
+Each column represents the estimated number of cells if you sequence 10,000 or 20,000 cells.
+
+Note, for this estimation, we assume all the cells will get a clone barcode.
+Chances are this won't happen, and you will probably get 80% to 90% of cells getting
+clone barcode.
+We can add this information in as the `confidence_threshold` parameter, and redo the estimation.
+Note that `confidence_threshold` takes value between 0 to 1, so you will need to convert
+the percentage (if 80% then it is 80/100 = 0.8).
+
+```{r}
+clones_nxclone_proportion <- project_clones(
+  count_data = clones_nxclone,
+  grouping_col = "sample_name",
+  count_column = "read_count",
+  project_amnt = c(10000, 20000),
+  confidence_threshold = 0.8
+)
+
+head(clones_nxclone_proportion)
+```
+
+We can no visualise this as ordered abundance plot to see what the clone abundance look like.
+
+```{r}
+plt <- draw_ordered_abundance_plot(
+  count_data = clones_nxclone_proportion,
+  y_axis_column = 'projected_20000_confidence_0_8',
+  facet_column = 'sample_name'
+) + 
+  geom_point(size = 0.5, colour='forestgreen') +
+  labs(
+    y = 'Number of cells',
+    title = 'Number of cells assigned to each barcode',
+    subtitle = 'Cell counts computed after projection to 20,000 cells'
+  )
+plt
+```
+
+And for sequencing 10,000 cells?
+
+```{r}
+plt <- draw_ordered_abundance_plot(
+  count_data = clones_nxclone_proportion,
+  y_axis_column = 'projected_10000_confidence_0_8',
+  facet_column = 'sample_name'
+) + 
+  geom_point(size = 0.5, colour='dodgerblue') +
+  labs(
+    y = 'Number of cells',
+    title = 'Number of cells assigned to each barcode',
+    subtitle = 'Cell counts computed after projection to 10,000 cells'
+  )
+plt
+```
+
+We can also estimate the number of clones that will contain at least a specified 
+minimum number of cells using `count_retained_clones` function used in the previous section.
+
+```{r}
+thresholds <- seq(10, 30, 5)
+
+proj_n_clones_retained <- count_retained_clones(
+  count_data = clones_nxclone_proportion,
+  thresholds = thresholds,
+  grouping_col = "sample_name",
+  count_column = "projected_10000_confidence_0_8"
+)
+
+proj_n_clones_retained
+```
+
+As well as the cumulative number of cells for the top say 200 most abundant clones.
+This is particularly useful if we want to do differential abundance test for the clones.
+
+```{r}
+top_threshold <- 200
+top_barcodes <- get_top_barcodes_and_cum_sum(
+  count_data = clones_nxclone_proportion,
+  count_column = "projected_10000_confidence_0_8",
+  grouping_col = "sample_name",
+  top_threshold = top_threshold
+)
+
+head(top_barcodes)
+```
+
+Ah, a table may not be of much use.
+Let's draw a line plot to show them instead.
+
+```{r}
+ggplot(top_barcodes, aes(x=barcode_rank, y=cum_sum_projected_10000_confidence_0_8, 
+                         group=sample_name, colour = sample_name)) +
+  geom_line(linewidth=1) +
+  theme_bw() +
+  scale_y_continuous(breaks = pretty_breaks(n=10), labels = label_comma(accuracy = 1)) +
+  scale_x_continuous(breaks = pretty_breaks(n=10)) +
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),
+    legend.position = "bottom"
+  ) +
+  labs(
+    y = "Number of cells",
+    x = "Barcode Ranking",
+    title = paste("Projected no. of cells for top", top_threshold, "most abundant clones"),
+    colour = "Library"
+  )
+
+```
+
+
+
+
+
+
+
