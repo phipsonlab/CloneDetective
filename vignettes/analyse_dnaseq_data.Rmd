@@ -1,8 +1,8 @@
 ---
-title: "Analyse NGS data using CloneDetective"
+title: "Analyse DNA-seq data using CloneDetective"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{analyse_ngs_data}
+  %\VignetteIndexEntry{analyse_dnaseq_data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,11 +16,11 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-This vignette focuses on using the package to analyse NGS data.
-NGS data refers to lineage tracing DNA barcoding data which exclusively sequences 
-clone barcode reads using Next Generation Sequencing (hence called NGS data).
+This vignette focuses on using the package to analyse DNA-seq data.
+DNA-seq data refers to lineage tracing DNA barcoding data which exclusively sequences 
+clone barcode reads using Next Generation Sequencing.
 
-We will go through how to analyse clone barcode distributions from NGS data which 
+We will go through how to analyse clone barcode distributions from DNA-seq data which 
 can inform the design of future scRNAseq experiments.
 
 # Setup
@@ -38,9 +38,9 @@ library(ggplot2)
 library(scales)
 ```
 
-# Load the NGS data
+# Load the DNA-seq data
 
-Before we delve into investigating what our NGS data looks like, we have to load it in first.
+Before we delve into investigating what our DNA-seq data looks like, we have to load it in first.
 
 Assuming you have used [NextClone](https://github.com/phipsonlab/NextClone) to extract 
 the clone barcodes from your raw FASTQ files,
@@ -51,7 +51,7 @@ If you have used other pipeline to extract (which you are more than welcomed to)
 you will have to wrangle the output such that you get the aforementioned CSV file.
 
 For the purpose of this vignette, I have randomly sampled 4000 clone barcodes
-from the 8k and 10k NGS data we used in our paper.
+from the 8k and 10k DNA-seq data we used in our paper.
 
 Let's load it up using `data.table` and take a peek inside using the `head` function.
 The data is included in the package in `extdata` folder which we can located using
@@ -59,7 +59,7 @@ The data is included in the package in `extdata` folder which we can located usi
 
 ```{r}
 clones_nxclone <- fread(
-  system.file("extdata", "ngs_clone_barcode_counts_subsampled.csv", 
+  system.file("extdata", "dnaseq_clone_barcode_counts_subsampled.csv", 
               package = "CloneDetective")
 )
 
@@ -114,10 +114,10 @@ n_barcodes_nxclone
 
 Each row is a sample, and each column tells you how many clones we get with at least
 1, 20, 200, 1000 cells.
-Remember, we are using sub-sampled NGS data, that is why the `at_least_1_cells` column
+Remember, we are using sub-sampled DNA-seq data, that is why the `at_least_1_cells` column
 for both samples have exactly 4,000 clones.
 
-This information is useful to see how many reasonably sized clones we get in our NGS data.
+This information is useful to see how many reasonably sized clones we get in our DNA-seq data.
 Often, it is not even worthwhile keeping clones that have too little cells.
 To remove them, we can use the `remove_clones_below_threshold` function.
 
@@ -180,7 +180,7 @@ The proportion of cells belonging to this clone is much much more than others.
 For the future, it may be best to not use the 8k sample because of this
 dominant clone restricting the space available for others to grow.
 
-# Using NGS data to plan future scRNAseq experiment
+# Using DNA-seq data to plan future scRNAseq experiment
 
 We can use the calculated cell proportions above to forecast clonal abundance for 
 future scRNAseq experiments. 

@@ -1,0 +1,20 @@
+---
+title: "Analyse scRNAseq data using CloneDetective"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Analyse scRNAseq data using CloneDetective}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(CloneDetective)
+```
+

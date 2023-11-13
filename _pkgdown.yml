@@ -1,0 +1,23 @@
+url: https://phipsonlab.github.io/CloneDetective/
+template:
+  bootswatch: cosmo
+
+navbar:
+  title: "CloneDetective"
+  left:
+    - icon: fa-home fa-lg
+      href: index.html
+    - text: "Vignettes"
+      href: articles/index.html
+    - text: "Functions"
+      href: reference/index.html
+    - text: "Other Packages"
+      menu:
+        - text: "NextClone"
+          href: https://github.com/phipsonlab/NextClone
+  right:
+   - icon: fa-github
+     href: https://github.com/phipsonlab/CloneDetective
+
+
+
