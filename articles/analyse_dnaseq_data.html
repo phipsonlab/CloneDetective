@@ -59,7 +59,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="https://github.com/phipsonlab/NextClone" class="external-link">NextClone</a>
+      <a href="https://phipsonlab.github.io/NextClone/" class="external-link">NextClone</a>
     </li>
   </ul>
 </li>
@@ -131,7 +131,7 @@ the ggplot objects created by CloneDetective.</li>
 </h2>
 <p>Before we delve into investigating what our DNA-seq data looks like,
 we have to load it in first.</p>
-<p>Assuming you have used <a href="https://github.com/phipsonlab/NextClone" class="external-link">NextClone</a> to extract
+<p>Assuming you have used <a href="https://phipsonlab.github.io/NextClone/" class="external-link">NextClone</a> to extract
 the clone barcodes from your raw FASTQ files, you will now have a CSV
 file where each row corresponds to a unique clone barcode and its
 frequency in the sample.</p>
@@ -346,10 +346,10 @@ it is 80/100 = 0.8).</p>
 <span><span class="co">#&gt; 6:         10k TCTAGCAGAGGAAGAGAAGG         15          1.125343e-05</span></span>
 <span><span class="co">#&gt;    projected_10000_confidence_0_8 projected_20000_confidence_0_8</span></span>
 <span><span class="co">#&gt; 1:                              1                              1</span></span>
-<span><span class="co">#&gt; 2:                              2                              3</span></span>
-<span><span class="co">#&gt; 3:                              1                              1</span></span>
-<span><span class="co">#&gt; 4:                              3                              6</span></span>
-<span><span class="co">#&gt; 5:                              4                             10</span></span>
+<span><span class="co">#&gt; 2:                              1                              2</span></span>
+<span><span class="co">#&gt; 3:                              0                              1</span></span>
+<span><span class="co">#&gt; 4:                              3                              5</span></span>
+<span><span class="co">#&gt; 5:                              4                              9</span></span>
 <span><span class="co">#&gt; 6:                              0                              0</span></span></code></pre></div>
 <p>We can no visualise this as ordered abundance plot to see what the
 clone abundance look like.</p>
@@ -398,11 +398,11 @@ section.</p>
 <span></span>
 <span><span class="va">proj_n_clones_retained</span></span>
 <span><span class="co">#&gt;    sample_name at_least_10_cells at_least_15_cells at_least_20_cells</span></span>
-<span><span class="co">#&gt; 1:         10k                67                14                 2</span></span>
-<span><span class="co">#&gt; 2:          8k                62                12                 2</span></span>
+<span><span class="co">#&gt; 1:         10k                62                16                 3</span></span>
+<span><span class="co">#&gt; 2:          8k                68                12                 3</span></span>
 <span><span class="co">#&gt;    at_least_25_cells at_least_30_cells</span></span>
 <span><span class="co">#&gt; 1:                 0                 0</span></span>
-<span><span class="co">#&gt; 2:                 1                 1</span></span></code></pre></div>
+<span><span class="co">#&gt; 2:                 2                 1</span></span></code></pre></div>
 <p>As well as the cumulative number of cells for the top say 200 most
 abundant clones. This is particularly useful if we want to do
 differential abundance test for the clones.</p>
@@ -419,24 +419,24 @@ differential abundance test for the clones.</p>
 <span><span class="co">#&gt;    sample_name        known_barcode read_count read_count_proportion</span></span>
 <span><span class="co">#&gt; 1:          8k AGGGGAGTCGCGTGGTAGGC      24298           0.015342523</span></span>
 <span><span class="co">#&gt; 2:          8k GATGCCTGGAAAATACTTAA       4484           0.002831339</span></span>
-<span><span class="co">#&gt; 3:          8k GTTTTGGTAGGTTCACCGGA       3676           0.002321142</span></span>
-<span><span class="co">#&gt; 4:          8k AGAGCCTCACTAGCCTTTTG       3698           0.002335034</span></span>
-<span><span class="co">#&gt; 5:          8k ATGACGGGATGCGCGTTAGT       2924           0.001846306</span></span>
-<span><span class="co">#&gt; 6:          8k GTAAGCTCTAGGTGAAGAGT       2958           0.001867774</span></span>
+<span><span class="co">#&gt; 3:          8k AGAGCCTCACTAGCCTTTTG       3698           0.002335034</span></span>
+<span><span class="co">#&gt; 4:          8k GTAAGCTCTAGGTGAAGAGT       2958           0.001867774</span></span>
+<span><span class="co">#&gt; 5:          8k TAGTGACTTAGTGCTGTAGT       3186           0.002011741</span></span>
+<span><span class="co">#&gt; 6:          8k GTATTGCAATAGTAGGGTGG       2975           0.001878509</span></span>
 <span><span class="co">#&gt;    projected_10000_confidence_0_8 projected_20000_confidence_0_8</span></span>
-<span><span class="co">#&gt; 1:                            119                            241</span></span>
-<span><span class="co">#&gt; 2:                             23                             46</span></span>
-<span><span class="co">#&gt; 3:                             19                             37</span></span>
-<span><span class="co">#&gt; 4:                             18                             36</span></span>
-<span><span class="co">#&gt; 5:                             17                             27</span></span>
-<span><span class="co">#&gt; 6:                             17                             28</span></span>
+<span><span class="co">#&gt; 1:                            127                            249</span></span>
+<span><span class="co">#&gt; 2:                             25                             48</span></span>
+<span><span class="co">#&gt; 3:                             21                             35</span></span>
+<span><span class="co">#&gt; 4:                             17                             32</span></span>
+<span><span class="co">#&gt; 5:                             17                             34</span></span>
+<span><span class="co">#&gt; 6:                             16                             28</span></span>
 <span><span class="co">#&gt;    cum_sum_projected_10000_confidence_0_8 barcode_rank</span></span>
-<span><span class="co">#&gt; 1:                                    119            1</span></span>
-<span><span class="co">#&gt; 2:                                    142            2</span></span>
-<span><span class="co">#&gt; 3:                                    161            3</span></span>
-<span><span class="co">#&gt; 4:                                    179            4</span></span>
-<span><span class="co">#&gt; 5:                                    196            5</span></span>
-<span><span class="co">#&gt; 6:                                    213            6</span></span></code></pre></div>
+<span><span class="co">#&gt; 1:                                    127            1</span></span>
+<span><span class="co">#&gt; 2:                                    152            2</span></span>
+<span><span class="co">#&gt; 3:                                    173            3</span></span>
+<span><span class="co">#&gt; 4:                                    190            4</span></span>
+<span><span class="co">#&gt; 5:                                    207            5</span></span>
+<span><span class="co">#&gt; 6:                                    223            6</span></span></code></pre></div>
 <p>Ah, a table may not be of much use. Let’s draw a line plot to show
 them instead.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">

@@ -59,7 +59,7 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="https://github.com/phipsonlab/NextClone" class="external-link">NextClone</a>
+      <a href="https://phipsonlab.github.io/NextClone/" class="external-link">NextClone</a>
     </li>
   </ul>
 </li>
@@ -100,7 +100,7 @@ using CloneDetective</h1>
 </h2>
 <p>This vignette focuses on using CloneDetective to analyse scRNAseq
 data. Specifically, we will look at how many clone barcodes are detected
-per cell, and look at how to assign clone barcodes to cells.</p>
+per cell, and how to assign clone barcodes to cells.</p>
 </div>
 <div class="section level2">
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
@@ -116,87 +116,7 @@ object.</li>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://phipsonlab.github.io/CloneDetective/">CloneDetective</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://bioconductor.org/packages/scater/" class="external-link">scater</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; Loading required package: SingleCellExperiment</span></span>
-<span><span class="co">#&gt; Loading required package: SummarizedExperiment</span></span>
-<span><span class="co">#&gt; Loading required package: MatrixGenerics</span></span>
-<span><span class="co">#&gt; Loading required package: matrixStats</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'MatrixGenerics'</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:matrixStats':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,</span></span>
-<span><span class="co">#&gt;     colCounts, colCummaxs, colCummins, colCumprods, colCumsums,</span></span>
-<span><span class="co">#&gt;     colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,</span></span>
-<span><span class="co">#&gt;     colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,</span></span>
-<span><span class="co">#&gt;     colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,</span></span>
-<span><span class="co">#&gt;     colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,</span></span>
-<span><span class="co">#&gt;     colWeightedMeans, colWeightedMedians, colWeightedSds,</span></span>
-<span><span class="co">#&gt;     colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,</span></span>
-<span><span class="co">#&gt;     rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,</span></span>
-<span><span class="co">#&gt;     rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,</span></span>
-<span><span class="co">#&gt;     rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,</span></span>
-<span><span class="co">#&gt;     rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,</span></span>
-<span><span class="co">#&gt;     rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,</span></span>
-<span><span class="co">#&gt;     rowWeightedMads, rowWeightedMeans, rowWeightedMedians,</span></span>
-<span><span class="co">#&gt;     rowWeightedSds, rowWeightedVars</span></span>
-<span><span class="co">#&gt; Loading required package: GenomicRanges</span></span>
-<span><span class="co">#&gt; Loading required package: stats4</span></span>
-<span><span class="co">#&gt; Loading required package: BiocGenerics</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'BiocGenerics'</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     IQR, mad, sd, var, xtabs</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     anyDuplicated, aperm, append, as.data.frame, basename, cbind,</span></span>
-<span><span class="co">#&gt;     colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,</span></span>
-<span><span class="co">#&gt;     get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,</span></span>
-<span><span class="co">#&gt;     match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,</span></span>
-<span><span class="co">#&gt;     Position, rank, rbind, Reduce, rownames, sapply, setdiff, sort,</span></span>
-<span><span class="co">#&gt;     table, tapply, union, unique, unsplit, which.max, which.min</span></span>
-<span><span class="co">#&gt; Loading required package: S4Vectors</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'S4Vectors'</span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:utils':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     findMatches</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     expand.grid, I, unname</span></span>
-<span><span class="co">#&gt; Loading required package: IRanges</span></span>
-<span><span class="co">#&gt; Loading required package: GenomeInfoDb</span></span>
-<span><span class="co">#&gt; Loading required package: Biobase</span></span>
-<span><span class="co">#&gt; Welcome to Bioconductor</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     Vignettes contain introductory material; view with</span></span>
-<span><span class="co">#&gt;     'browseVignettes()'. To cite Bioconductor, see</span></span>
-<span><span class="co">#&gt;     'citation("Biobase")', and for packages 'citation("pkgname")'.</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'Biobase'</span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:MatrixGenerics':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     rowMedians</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:matrixStats':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     anyMissing, rowMedians</span></span>
-<span><span class="co">#&gt; Loading required package: scuttle</span></span>
-<span><span class="co">#&gt; Loading required package: ggplot2</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'data.table'</span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:SummarizedExperiment':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     shift</span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:GenomicRanges':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     shift</span></span>
-<span><span class="co">#&gt; The following object is masked from 'package:IRanges':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     shift</span></span>
-<span><span class="co">#&gt; The following objects are masked from 'package:S4Vectors':</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     first, second</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="simulate-scrnaseq-data">Simulate scRNAseq data<a class="anchor" aria-label="anchor" href="#simulate-scrnaseq-data"></a>
@@ -223,7 +143,7 @@ generated using the <code>scater</code> package.</p>
 <span><span class="co">#&gt; mainExpName: NULL</span></span>
 <span><span class="co">#&gt; altExpNames(1): Spikes</span></span></code></pre></div>
 <div class="section level3">
-<h3 id="loading-actual-cell-by-gene-matrix-">Loading actual cell by gene matrix.<a class="anchor" aria-label="anchor" href="#loading-actual-cell-by-gene-matrix-"></a>
+<h3 id="loading-actual-cell-by-gene-matrix">Loading actual cell by gene matrix<a class="anchor" aria-label="anchor" href="#loading-actual-cell-by-gene-matrix"></a>
 </h3>
 <p>For your own dataset, you can load them up using the <a href="https://bioconductor.org/packages/release/bioc/html/DropletUtils.html" class="external-link">DropletUtils</a>
 package.</p>
@@ -233,14 +153,15 @@ folder <code>filtered_feature_bc_matrix</code>. You can load them up
 into a SingleCellExperiment object like so.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sce</span> <span class="op">&lt;-</span> <span class="fu">read10xCounts</span><span class="op">(</span><span class="st">"filtered_feature_bc_matrix"</span><span class="op">)</span></span></code></pre></div>
-<p>At the end, you should have in colData of the object, a column called
-Barcode which represents the 10x cell barcode.</p>
+<p>At the end, you should have in the <code>colData</code> of the
+object, a column called <code>Barcode</code> which represents the 10x
+cell barcode.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="load-the-clone-barcode-data">Load the clone barcode data<a class="anchor" aria-label="anchor" href="#load-the-clone-barcode-data"></a>
 </h2>
-<p>Assuming you have used <a href="https://github.com/phipsonlab/NextClone" class="external-link">NextClone</a> to extract
+<p>Assuming you have used <a href="https://phipsonlab.github.io/NextClone/" class="external-link">NextClone</a> to extract
 the clone barcodes from your BAM file, you will now have a CSV file
 where each row corresponds to a read that belongs to a cell and mapped
 to a clone barcode.</p>
@@ -288,12 +209,12 @@ columns are:</p>
 <li>
 <strong>CellBarcode</strong>: 10x barcode which uniquely identify
 your cells. Since this is a simulated data, the Barcode is just
-“Cell_xxx”. For real data, your CellBarcode should look like “ATTTGG-1”
-(something along those lines).</li>
+“Cell_xxx”. For a real data, your CellBarcode should look like
+“ATTTGG-1” (something along those lines).</li>
 <li>
 <strong>CloneBarcode</strong>: the clone barcode detected.</li>
 <li>
-<strong>SourceBAMFile</strong>: the BAM file the read comes
+<strong>SourceBAMFile</strong>: the BAM file the read came
 from.</li>
 <li>
 <strong>ReadId</strong>: the read ID.</li>
@@ -303,16 +224,16 @@ from.</li>
 <strong>FlankEditDist</strong>: the edit distance for the 5’ and 3’
 adapter for the read. This is generated by Flexiplex.</li>
 <li>
-<strong>BarcodeEditDist</strong>: the edit distance when mapping the
-read’s sequence to the clone barcode. This is generated by
-Flexiplex.</li>
+<strong>BarcodeEditDist</strong>: the edit distance of the read when
+mapped to the clone barcode. This is generated by Flexiplex.</li>
 </ul>
 </div>
 <div class="section level2">
-<h2 id="generate-cell-by-clone-matrix-">Generate cell by clone matrix.<a class="anchor" aria-label="anchor" href="#generate-cell-by-clone-matrix-"></a>
+<h2 id="generate-cell-by-clone-matrix">Generate cell by clone matrix<a class="anchor" aria-label="anchor" href="#generate-cell-by-clone-matrix"></a>
 </h2>
-<p>We can use CloneDetective to generate a table that looks a lot like a
-cell by clone matrix where each row represents a cell, a clone barcode,
+<p>We can use CloneDetective to generate a table that is similar to a
+cell by clone matrix. I said similar as it is not quite a matrix.
+Rather, it is a table where each row represents a cell, a clone barcode,
 and the number of reads detected for that cell and clone barcode.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cell_by_clone_mat</span> <span class="op">=</span> <span class="fu"><a href="../reference/generate_cell_clone_barcode_matrix.html">generate_cell_clone_barcode_matrix</a></span><span class="op">(</span></span>
@@ -329,11 +250,11 @@ barcode (<code>clone_bcode_col</code>), and the UMI
 <p>The <code>umi_clone_consensus_threshold</code> represents the
 proportion threshold of reads for collapsing UMIs when computing the
 cell-by-clone matrix. The cell-by-clone matrix construction first
-collapses reads with the same cell and UMI barcodes For a group of reads
-have the same cell barcode and UMI barcode, if the reads are mapped to
-several clone barcodes, by default, they are collapsed into one read and
-assigned to the clone barcode comprising 70% or more of its group’s
-reads. This threshold modifiable using this
+collapses reads with the same cell and UMI barcodes. For a group of
+reads that have the same cell barcode and UMI barcode, if the reads are
+mapped to several clone barcodes, by default, they are collapsed into
+one read and assigned to the clone barcode comprising 70% or more of its
+group’s reads. This threshold modifiable using this
 <code>umi_clone_consensus_threshold</code> parameter. To apply the
 default threshold of 70%, set this parameter to 0.7.</p>
 <p>This is what the cell by clone matrix looks like.</p>
@@ -346,7 +267,7 @@ default threshold of 70%, set this parameter to 0.7.</p>
 <span><span class="co">#&gt; 4:   Cell_1000 TGTCGCTCTCTTCACGTTGG       1</span></span>
 <span><span class="co">#&gt; 5:   Cell_1001 CAAGGCTTGCCCGACCGTCC       1</span></span>
 <span><span class="co">#&gt; 6:   Cell_1002 TGTGCTTGGACGACACGCAG       1</span></span></code></pre></div>
-<p>For each cell and clone barcode, you will see how many reads were
+<p>For each cell and clone barcode, we will obtain the number of reads
 detected.</p>
 </div>
 <div class="section level2">
@@ -354,11 +275,11 @@ detected.</p>
 </h2>
 <p>A Treemap is useful for visualising the distribution of cells (as
 absolute number and proportion) according to the number of detected
-clone barcodes within each cell. It cells into groups based on the
-number of clone barcodes detected per cell, ranging from cells with no
-detected barcodes to cells with ten or more barcodes detected.</p>
+clone barcodes within each cell. Cells are grouped based on the number
+of clone barcodes detected per cell, ranging from cells with no detected
+barcodes to cells with ten or more barcodes detected.</p>
 <p>To draw the treemap, we have to give it the cell barcode to draw the
-plot for. For this, we will use all the cell barcode in our
+plot for. For this, we will use all the cell barcodes in our
 SingleCellExperiment object.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">valid_cells_10x</span> <span class="op">&lt;-</span> <span class="fu">colData</span><span class="op">(</span><span class="va">sce</span><span class="op">)</span><span class="op">$</span><span class="va">Barcode</span></span>
@@ -415,8 +336,7 @@ function like so.</p>
 cell. NA means no clone barcode was detected.
 <code>clone_barcode_criteria</code> refers to how the clone barcode
 assignment was done.</p>
-<p>This is the criteria we used to do the clone barcode assignment (in
-order):</p>
+<p>This is the criteria we used to do the clone barcode assignment:</p>
 <ol style="list-style-type: decimal">
 <li>Cells with exactly one clone barcode are assigned to their
 respective clones.</li>
