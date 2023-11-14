@@ -2,7 +2,7 @@
 title: "Analyse DNA-seq data using CloneDetective"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{analyse_dnaseq_data}
+  %\VignetteIndexEntry{Analyse DNA-seq data using CloneDetective}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

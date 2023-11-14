@@ -49,20 +49,20 @@
 #' Clone barcode assignment to cells follows a tiered approach:
 #' Cells with a single detected clone barcode are straightforwardly assigned to that clone.
 #' In cases where multiple clone barcodes are present, the most dominant clone barcode
-#' (constituting over 50% of reads, adjustable via `most_dominant_threshold`) is assigned.
+#' (constituting over 50 percent of reads, adjustable via `most_dominant_threshold`) is assigned.
 #' Remaining cells, where no clone barcode is sufficiently dominant, are assigned based
 #' on the lowest average barcode edit distance. If edit distances are equal, the clone
 #' barcode with the higher read count prevails.
-#' To use the default 50% threshold, set `most_dominant_threshold` to 0.5.
+#' To use the default 50 percent threshold, set `most_dominant_threshold` to 0.5.
 #'
 #' The cell-by-clone matrix construction first collapses reads with the same cell
 #' and UMI barcodes
 #' For a group of reads have the same cell barcode and UMI barcode,
 #' if the reads are mapped to several clone barcodes,
 #' by default, they are collapsed into one read and assigned to the clone barcode
-#' comprising 70\% or more of its group's reads.
+#' comprising 70 percent or more of its group's reads.
 #' This threshold modifiable by the `umi_clone_consensus_threshold` parameter.
-#' To apply the default threshold of 70\%, set this parameter to 0.7.
+#' To apply the default threshold of 70 percent, set this parameter to 0.7.
 #'
 #'
 #' @examples
