@@ -15,7 +15,7 @@ functions to perform an initial assessment of clone barcode uptake by cells and
 to assign clones to cells.
 
 This R package works greatly hand in hand with the 
-[NextClone pipeline](https://github.com/phipsonlab/NextClone).
+[NextClone pipeline](https://phipsonlab.github.io/NextClone/).
 
 ## Citation
 

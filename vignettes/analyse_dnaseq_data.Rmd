@@ -42,7 +42,7 @@ library(scales)
 
 Before we delve into investigating what our DNA-seq data looks like, we have to load it in first.
 
-Assuming you have used [NextClone](https://github.com/phipsonlab/NextClone) to extract 
+Assuming you have used [NextClone](https://phipsonlab.github.io/NextClone/) to extract 
 the clone barcodes from your raw FASTQ files,
 you will now have a CSV file where each row corresponds to a unique clone barcode 
 and its frequency in the sample. 

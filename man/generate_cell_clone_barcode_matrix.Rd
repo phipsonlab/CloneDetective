@@ -45,9 +45,9 @@ and UMI barcodes
 For a group of reads have the same cell barcode and UMI barcode,
 if the reads are mapped to several clone barcodes,
 by default, they are collapsed into one read and assigned to the clone barcode
-comprising 70% or more of its group's reads.
+comprising 70\% or more of its group's reads.
 This threshold modifiable by the `umi_clone_consensus_threshold` parameter.
-To apply the default threshold of 70%, set this parameter to 0.7.
+To apply the default threshold of 70\%, set this parameter to 0.7.
 }
 \examples{
 library(data.table)
@@ -72,6 +72,6 @@ cell_clone_bcode_dt <- data.table(
            rep("D1", 5), rep("D2", 2)
        )
    )
-res <- generate_cell_clone_barcode_matrix(cell_clone_bcode_dt)
+generate_cell_clone_barcode_matrix(cell_clone_bcode_dt)
 
 }

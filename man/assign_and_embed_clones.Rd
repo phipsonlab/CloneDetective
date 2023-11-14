@@ -2,7 +2,7 @@
 % Please edit documentation in R/sc_assign_clones_to_cells.R
 \name{assign_and_embed_clones}
 \alias{assign_and_embed_clones}
-\title{Assign Clones to Cells and Embed the Assignment to SingleCellExperiment Object}
+\title{Assign clones to cells}
 \usage{
 assign_and_embed_clones(
   cell_by_gene_mat,
@@ -67,11 +67,11 @@ See details for the assignment method.
 Clone barcode assignment to cells follows a tiered approach:
 Cells with a single detected clone barcode are straightforwardly assigned to that clone.
 In cases where multiple clone barcodes are present, the most dominant clone barcode
-(constituting over 50% of reads, adjustable via `most_dominant_threshold`) is assigned.
+(constituting over 50\% of reads, adjustable via `most_dominant_threshold`) is assigned.
 Remaining cells, where no clone barcode is sufficiently dominant, are assigned based
 on the lowest average barcode edit distance. If edit distances are equal, the clone
 barcode with the higher read count prevails.
-To use the default 50% threshold, set `most_dominant_threshold` to 0.5.
+To use the default 50\% threshold, set `most_dominant_threshold` to 0.5.
 
 The cell-by-clone matrix construction first collapses reads with the same cell
 and UMI barcodes

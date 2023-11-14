@@ -14,7 +14,7 @@ navbar:
     - text: "Other Packages"
       menu:
         - text: "NextClone"
-          href: https://github.com/phipsonlab/NextClone
+          href: https://phipsonlab.github.io/NextClone/
   right:
    - icon: fa-github
      href: https://github.com/phipsonlab/CloneDetective
