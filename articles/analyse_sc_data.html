@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Analyse scRNAseq data using CloneDetective • CloneDetective</title>
+<title>Assign clone barcodes to cells in scRNAseq data using CloneDetective • CloneDetective</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Analyse scRNAseq data using CloneDetective">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Assign clone barcodes to cells in scRNAseq data using CloneDetective">
 <meta property="og:description" content="CloneDetective">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -84,7 +84,8 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Analyse scRNAseq data using CloneDetective</h1>
+      <h1 data-toc-skip>Assign clone barcodes to cells in scRNAseq data
+using CloneDetective</h1>
             
       
       
@@ -94,13 +95,349 @@
 
     
     
+<div class="section level2">
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
+<p>This vignette focuses on using CloneDetective to analyse scRNAseq
+data. Specifically, we will look at how many clone barcodes are detected
+per cell, and look at how to assign clone barcodes to cells.</p>
+</div>
+<div class="section level2">
+<h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
+</h2>
+<p>In addition to CloneDetective we’ll load the following packages:</p>
+<ul>
+<li>
+<strong>data.table</strong>, to read in CSV file.</li>
+<li>
+<strong>scater</strong>, to simulate SingleCellExperiment
+object.</li>
+</ul>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://phipsonlab.github.io/CloneDetective/">CloneDetective</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://phipsonlab.github.io/CloneDetective/">CloneDetective</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://bioconductor.org/packages/scater/" class="external-link">scater</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; Loading required package: SingleCellExperiment</span></span>
+<span><span class="co">#&gt; Loading required package: SummarizedExperiment</span></span>
+<span><span class="co">#&gt; Loading required package: MatrixGenerics</span></span>
+<span><span class="co">#&gt; Loading required package: matrixStats</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'MatrixGenerics'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:matrixStats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     colAlls, colAnyNAs, colAnys, colAvgsPerRowSet, colCollapse,</span></span>
+<span><span class="co">#&gt;     colCounts, colCummaxs, colCummins, colCumprods, colCumsums,</span></span>
+<span><span class="co">#&gt;     colDiffs, colIQRDiffs, colIQRs, colLogSumExps, colMadDiffs,</span></span>
+<span><span class="co">#&gt;     colMads, colMaxs, colMeans2, colMedians, colMins, colOrderStats,</span></span>
+<span><span class="co">#&gt;     colProds, colQuantiles, colRanges, colRanks, colSdDiffs, colSds,</span></span>
+<span><span class="co">#&gt;     colSums2, colTabulates, colVarDiffs, colVars, colWeightedMads,</span></span>
+<span><span class="co">#&gt;     colWeightedMeans, colWeightedMedians, colWeightedSds,</span></span>
+<span><span class="co">#&gt;     colWeightedVars, rowAlls, rowAnyNAs, rowAnys, rowAvgsPerColSet,</span></span>
+<span><span class="co">#&gt;     rowCollapse, rowCounts, rowCummaxs, rowCummins, rowCumprods,</span></span>
+<span><span class="co">#&gt;     rowCumsums, rowDiffs, rowIQRDiffs, rowIQRs, rowLogSumExps,</span></span>
+<span><span class="co">#&gt;     rowMadDiffs, rowMads, rowMaxs, rowMeans2, rowMedians, rowMins,</span></span>
+<span><span class="co">#&gt;     rowOrderStats, rowProds, rowQuantiles, rowRanges, rowRanks,</span></span>
+<span><span class="co">#&gt;     rowSdDiffs, rowSds, rowSums2, rowTabulates, rowVarDiffs, rowVars,</span></span>
+<span><span class="co">#&gt;     rowWeightedMads, rowWeightedMeans, rowWeightedMedians,</span></span>
+<span><span class="co">#&gt;     rowWeightedSds, rowWeightedVars</span></span>
+<span><span class="co">#&gt; Loading required package: GenomicRanges</span></span>
+<span><span class="co">#&gt; Loading required package: stats4</span></span>
+<span><span class="co">#&gt; Loading required package: BiocGenerics</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'BiocGenerics'</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:stats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     IQR, mad, sd, var, xtabs</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     anyDuplicated, aperm, append, as.data.frame, basename, cbind,</span></span>
+<span><span class="co">#&gt;     colnames, dirname, do.call, duplicated, eval, evalq, Filter, Find,</span></span>
+<span><span class="co">#&gt;     get, grep, grepl, intersect, is.unsorted, lapply, Map, mapply,</span></span>
+<span><span class="co">#&gt;     match, mget, order, paste, pmax, pmax.int, pmin, pmin.int,</span></span>
+<span><span class="co">#&gt;     Position, rank, rbind, Reduce, rownames, sapply, setdiff, sort,</span></span>
+<span><span class="co">#&gt;     table, tapply, union, unique, unsplit, which.max, which.min</span></span>
+<span><span class="co">#&gt; Loading required package: S4Vectors</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'S4Vectors'</span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:utils':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     findMatches</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:base':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     expand.grid, I, unname</span></span>
+<span><span class="co">#&gt; Loading required package: IRanges</span></span>
+<span><span class="co">#&gt; Loading required package: GenomeInfoDb</span></span>
+<span><span class="co">#&gt; Loading required package: Biobase</span></span>
+<span><span class="co">#&gt; Welcome to Bioconductor</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     Vignettes contain introductory material; view with</span></span>
+<span><span class="co">#&gt;     'browseVignettes()'. To cite Bioconductor, see</span></span>
+<span><span class="co">#&gt;     'citation("Biobase")', and for packages 'citation("pkgname")'.</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'Biobase'</span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:MatrixGenerics':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     rowMedians</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:matrixStats':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     anyMissing, rowMedians</span></span>
+<span><span class="co">#&gt; Loading required package: scuttle</span></span>
+<span><span class="co">#&gt; Loading required package: ggplot2</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-datatable.com" class="external-link">data.table</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Attaching package: 'data.table'</span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:SummarizedExperiment':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     shift</span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:GenomicRanges':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     shift</span></span>
+<span><span class="co">#&gt; The following object is masked from 'package:IRanges':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     shift</span></span>
+<span><span class="co">#&gt; The following objects are masked from 'package:S4Vectors':</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;     first, second</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="simulate-scrnaseq-data">Simulate scRNAseq data<a class="anchor" aria-label="anchor" href="#simulate-scrnaseq-data"></a>
+</h2>
+<p>For this vignette, we will use a simulated cell by gene matrix
+generated using the <code>scater</code> package.</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">sce</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/scuttle/man/mockSCE.html" class="external-link">mockSCE</a></span><span class="op">(</span>ncells <span class="op">=</span> <span class="fl">2000</span>, ngenes <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span><span class="co"># use the colnames as the 10x cell barcode</span></span>
+<span><span class="fu">colData</span><span class="op">(</span><span class="va">sce</span><span class="op">)</span><span class="op">$</span><span class="va">Barcode</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">sce</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">sce</span></span>
+<span><span class="co">#&gt; class: SingleCellExperiment </span></span>
+<span><span class="co">#&gt; dim: 1000 2000 </span></span>
+<span><span class="co">#&gt; metadata(0):</span></span>
+<span><span class="co">#&gt; assays(1): counts</span></span>
+<span><span class="co">#&gt; rownames(1000): Gene_0001 Gene_0002 ... Gene_0999 Gene_1000</span></span>
+<span><span class="co">#&gt; rowData names(0):</span></span>
+<span><span class="co">#&gt; colnames(2000): Cell_001 Cell_002 ... Cell_1999 Cell_2000</span></span>
+<span><span class="co">#&gt; colData names(4): Mutation_Status Cell_Cycle Treatment Barcode</span></span>
+<span><span class="co">#&gt; reducedDimNames(0):</span></span>
+<span><span class="co">#&gt; mainExpName: NULL</span></span>
+<span><span class="co">#&gt; altExpNames(1): Spikes</span></span></code></pre></div>
+<div class="section level3">
+<h3 id="loading-actual-cell-by-gene-matrix-">Loading actual cell by gene matrix.<a class="anchor" aria-label="anchor" href="#loading-actual-cell-by-gene-matrix-"></a>
+</h3>
+<p>For your own dataset, you can load them up using the <a href="https://bioconductor.org/packages/release/bioc/html/DropletUtils.html" class="external-link">DropletUtils</a>
+package.</p>
+<p>Assuming you have the <code>barcode.tsv.gz</code>,
+<code>features.tsv.gz</code>, <code>matrix.mtx.gz</code> files in a
+folder <code>filtered_feature_bc_matrix</code>. You can load them up
+into a SingleCellExperiment object like so.</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sce</span> <span class="op">&lt;-</span> <span class="fu">read10xCounts</span><span class="op">(</span><span class="st">"filtered_feature_bc_matrix"</span><span class="op">)</span></span></code></pre></div>
+<p>At the end, you should have in colData of the object, a column called
+Barcode which represents the 10x cell barcode.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="load-the-clone-barcode-data">Load the clone barcode data<a class="anchor" aria-label="anchor" href="#load-the-clone-barcode-data"></a>
+</h2>
+<p>Assuming you have used <a href="https://github.com/phipsonlab/NextClone" class="external-link">NextClone</a> to extract
+the clone barcodes from your BAM file, you will now have a CSV file
+where each row corresponds to a read that belongs to a cell and mapped
+to a clone barcode.</p>
+<p>If you have used other pipeline to extract (which you are more than
+welcomed to), you will have to wrangle the output such that you get the
+aforementioned CSV file.</p>
+<p>For the purpose of this vignette, I have randomly sampled 2000 cells
+from the scRNAseq data we used in our paper.</p>
+<p>Let’s load it up using <code>data.table</code> and take a peek inside
+using the <code>head</code> function. The data is included in the
+package in <code>extdata</code> folder which we can located using
+<code>system.file</code> function.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cell_clone_bcode_dt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://Rdatatable.gitlab.io/data.table/reference/fread.html" class="external-link">fread</a></span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"sc_clone_barcodes_subsampled.csv"</span>, </span>
+<span>              package <span class="op">=</span> <span class="st">"CloneDetective"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">cell_clone_bcode_dt</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    CellBarcode         CloneBarcode        SourceBAMFile</span></span>
+<span><span class="co">#&gt; 1:   Cell_1286 TAATGTGAAACCTAAGGAGT possorted_genome_bam</span></span>
+<span><span class="co">#&gt; 2:    Cell_470 AAGGCTTCGGAGGCTGCCCC possorted_genome_bam</span></span>
+<span><span class="co">#&gt; 3:    Cell_470 CTCAGGGGCGCGTAGTGTGG possorted_genome_bam</span></span>
+<span><span class="co">#&gt; 4:   Cell_1832 GTAATTGATGAGACTGCAAT possorted_genome_bam</span></span>
+<span><span class="co">#&gt; 5:   Cell_1832 GTAATTGATGAGACTGCAAT possorted_genome_bam</span></span>
+<span><span class="co">#&gt; 6:   Cell_1696 AAGGGGGGTTTGTTTCGTGG possorted_genome_bam</span></span>
+<span><span class="co">#&gt;                                     ReadId          UMI FlankEditDist</span></span>
+<span><span class="co">#&gt; 1:  A00121:674:HVMHWDSX3:2:2312:27055:5415 TTGGGAGCATTT             2</span></span>
+<span><span class="co">#&gt; 2:  A00121:674:HVMHWDSX3:1:2234:1226:29105 GGTCTTACATTA             0</span></span>
+<span><span class="co">#&gt; 3: A00121:674:HVMHWDSX3:1:2276:17770:35462 ACTACGAGTTAT             0</span></span>
+<span><span class="co">#&gt; 4:  A00121:674:HVMHWDSX3:1:2522:3540:36245 GCGGTCCACATT             0</span></span>
+<span><span class="co">#&gt; 5: A00121:674:HVMHWDSX3:1:1567:21531:10848 GCGGTCCACATT             0</span></span>
+<span><span class="co">#&gt; 6:  A00121:674:HVMHWDSX3:2:1372:21992:8891 GGCCACAGGGAT             0</span></span>
+<span><span class="co">#&gt;    BarcodeEditDist</span></span>
+<span><span class="co">#&gt; 1:               0</span></span>
+<span><span class="co">#&gt; 2:               0</span></span>
+<span><span class="co">#&gt; 3:               0</span></span>
+<span><span class="co">#&gt; 4:               0</span></span>
+<span><span class="co">#&gt; 5:               0</span></span>
+<span><span class="co">#&gt; 6:               0</span></span></code></pre></div>
+<p>Remember, each row is a read. Let’s quickly go through what the
+columns are:</p>
+<ul>
+<li>
+<strong>CellBarcode</strong>: 10x barcode which uniquely identify
+your cells. Since this is a simulated data, the Barcode is just
+“Cell_xxx”. For real data, your CellBarcode should look like “ATTTGG-1”
+(something along those lines).</li>
+<li>
+<strong>CloneBarcode</strong>: the clone barcode detected.</li>
+<li>
+<strong>SourceBAMFile</strong>: the BAM file the read comes
+from.</li>
+<li>
+<strong>ReadId</strong>: the read ID.</li>
+<li>
+<strong>UMI</strong>: UMI barcode for the read.</li>
+<li>
+<strong>FlankEditDist</strong>: the edit distance for the 5’ and 3’
+adapter for the read. This is generated by Flexiplex.</li>
+<li>
+<strong>BarcodeEditDist</strong>: the edit distance when mapping the
+read’s sequence to the clone barcode. This is generated by
+Flexiplex.</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="generate-cell-by-clone-matrix-">Generate cell by clone matrix.<a class="anchor" aria-label="anchor" href="#generate-cell-by-clone-matrix-"></a>
+</h2>
+<p>We can use CloneDetective to generate a table that looks a lot like a
+cell by clone matrix where each row represents a cell, a clone barcode,
+and the number of reads detected for that cell and clone barcode.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cell_by_clone_mat</span> <span class="op">=</span> <span class="fu"><a href="../reference/generate_cell_clone_barcode_matrix.html">generate_cell_clone_barcode_matrix</a></span><span class="op">(</span></span>
+<span>  cell_clone_bcode_dt <span class="op">=</span> <span class="va">cell_clone_bcode_dt</span>,</span>
+<span>  cell_bcode_col <span class="op">=</span> <span class="st">"CellBarcode"</span>,</span>
+<span>  clone_bcode_col <span class="op">=</span> <span class="st">"CloneBarcode"</span>,</span>
+<span>  umi_col <span class="op">=</span> <span class="st">"UMI"</span>,</span>
+<span>  umi_clone_consensus_threshold <span class="op">=</span> <span class="fl">0.7</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>The parameters ending with <code>_col</code> denotes the column that
+represents the cell barcode (<code>cell_bcode_col</code>), the clone
+barcode (<code>clone_bcode_col</code>), and the UMI
+(<code>umi_col</code>).</p>
+<p>The <code>umi_clone_consensus_threshold</code> represents the
+proportion threshold of reads for collapsing UMIs when computing the
+cell-by-clone matrix. The cell-by-clone matrix construction first
+collapses reads with the same cell and UMI barcodes For a group of reads
+have the same cell barcode and UMI barcode, if the reads are mapped to
+several clone barcodes, by default, they are collapsed into one read and
+assigned to the clone barcode comprising 70% or more of its group’s
+reads. This threshold modifiable using this
+<code>umi_clone_consensus_threshold</code> parameter. To apply the
+default threshold of 70%, set this parameter to 0.7.</p>
+<p>This is what the cell by clone matrix looks like.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">cell_by_clone_mat</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    CellBarcode         CloneBarcode n_reads</span></span>
+<span><span class="co">#&gt; 1:      Cell_1 CGCTCCAGTGTGCAGGAATT       1</span></span>
+<span><span class="co">#&gt; 2:     Cell_10 GATCTCCGTCCAAGGGCTGG       1</span></span>
+<span><span class="co">#&gt; 3:    Cell_100 CTAGCGGGTATAGATGGTAG       1</span></span>
+<span><span class="co">#&gt; 4:   Cell_1000 TGTCGCTCTCTTCACGTTGG       1</span></span>
+<span><span class="co">#&gt; 5:   Cell_1001 CAAGGCTTGCCCGACCGTCC       1</span></span>
+<span><span class="co">#&gt; 6:   Cell_1002 TGTGCTTGGACGACACGCAG       1</span></span></code></pre></div>
+<p>For each cell and clone barcode, you will see how many reads were
+detected.</p>
+</div>
+<div class="section level2">
+<h2 id="drawing-treemap">Drawing Treemap<a class="anchor" aria-label="anchor" href="#drawing-treemap"></a>
+</h2>
+<p>A Treemap is useful for visualising the distribution of cells (as
+absolute number and proportion) according to the number of detected
+clone barcodes within each cell. It cells into groups based on the
+number of clone barcodes detected per cell, ranging from cells with no
+detected barcodes to cells with ten or more barcodes detected.</p>
+<p>To draw the treemap, we have to give it the cell barcode to draw the
+plot for. For this, we will use all the cell barcode in our
+SingleCellExperiment object.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">valid_cells_10x</span> <span class="op">&lt;-</span> <span class="fu">colData</span><span class="op">(</span><span class="va">sce</span><span class="op">)</span><span class="op">$</span><span class="va">Barcode</span></span>
+<span><span class="va">plt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/draw_treemap.html">draw_treemap</a></span><span class="op">(</span></span>
+<span>    cell_by_clone_matrix <span class="op">=</span> <span class="va">cell_by_clone_mat</span>,</span>
+<span>    valid_cells_bcodes <span class="op">=</span> <span class="va">valid_cells_10x</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">plt</span></span></code></pre></div>
+<p><img src="analyse_sc_data_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<p>Ideally, each cell in a scRNAseq experiment should only have a single
+clone barcode detected. However, it’s common to find cells with either
+no or multiple clone barcodes detected.</p>
+</div>
+<div class="section level2">
+<h2 id="assigning-clones-to-cells">Assigning clones to cells<a class="anchor" aria-label="anchor" href="#assigning-clones-to-cells"></a>
+</h2>
+<p>To do this, we can use the <code>assign_and_embed_clones</code>
+function like so.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sce_with_clone</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/assign_and_embed_clones.html">assign_and_embed_clones</a></span><span class="op">(</span></span>
+<span>    cell_by_gene_mat <span class="op">=</span> <span class="va">sce</span>,</span>
+<span>    cell_clone_reads_dt <span class="op">=</span> <span class="va">cell_clone_bcode_dt</span>,</span>
+<span><span class="op">)</span></span>
+<span><span class="fu">colData</span><span class="op">(</span><span class="va">sce_with_clone</span><span class="op">)</span></span>
+<span><span class="co">#&gt; DataFrame with 2000 rows and 6 columns</span></span>
+<span><span class="co">#&gt;           Mutation_Status  Cell_Cycle   Treatment     Barcode</span></span>
+<span><span class="co">#&gt;               &lt;character&gt; &lt;character&gt; &lt;character&gt; &lt;character&gt;</span></span>
+<span><span class="co">#&gt; Cell_001         negative          G1      treat2    Cell_001</span></span>
+<span><span class="co">#&gt; Cell_002         negative           S      treat1    Cell_002</span></span>
+<span><span class="co">#&gt; Cell_003         positive          G0      treat2    Cell_003</span></span>
+<span><span class="co">#&gt; Cell_004         negative          G0      treat1    Cell_004</span></span>
+<span><span class="co">#&gt; Cell_005         positive         G2M      treat2    Cell_005</span></span>
+<span><span class="co">#&gt; ...                   ...         ...         ...         ...</span></span>
+<span><span class="co">#&gt; Cell_1996        positive          G1      treat1   Cell_1996</span></span>
+<span><span class="co">#&gt; Cell_1997        negative         G2M      treat1   Cell_1997</span></span>
+<span><span class="co">#&gt; Cell_1998        negative         G2M      treat1   Cell_1998</span></span>
+<span><span class="co">#&gt; Cell_1999        positive         G2M      treat1   Cell_1999</span></span>
+<span><span class="co">#&gt; Cell_2000        positive          G0      treat2   Cell_2000</span></span>
+<span><span class="co">#&gt;                  clone_barcode clone_barcode_criteria</span></span>
+<span><span class="co">#&gt;                    &lt;character&gt;               &lt;factor&gt;</span></span>
+<span><span class="co">#&gt; Cell_001                    NA        no_clones_found</span></span>
+<span><span class="co">#&gt; Cell_002                    NA        no_clones_found</span></span>
+<span><span class="co">#&gt; Cell_003                    NA        no_clones_found</span></span>
+<span><span class="co">#&gt; Cell_004                    NA        no_clones_found</span></span>
+<span><span class="co">#&gt; Cell_005                    NA        no_clones_found</span></span>
+<span><span class="co">#&gt; ...                        ...                    ...</span></span>
+<span><span class="co">#&gt; Cell_1996 CCGATTAGGTAAACGCAGGT           single_clone</span></span>
+<span><span class="co">#&gt; Cell_1997 ACAAAGACGAGGTCGGACGT           single_clone</span></span>
+<span><span class="co">#&gt; Cell_1998 CTGAATGATATTTCCATAGC           single_clone</span></span>
+<span><span class="co">#&gt; Cell_1999 GCAGGACTTTGTTGCGTAAT           single_clone</span></span>
+<span><span class="co">#&gt; Cell_2000 GCTGTATCATGTAGGCAGTC           single_clone</span></span></code></pre></div>
+<p>You will notice two new columns in your SingleCellExperiment object.
+<code>clone_barcode</code> denotes the clone barcode detected for the
+cell. NA means no clone barcode was detected.
+<code>clone_barcode_criteria</code> refers to how the clone barcode
+assignment was done.</p>
+<p>This is the criteria we used to do the clone barcode assignment (in
+order):</p>
+<ol style="list-style-type: decimal">
+<li>Cells with exactly one clone barcode are assigned to their
+respective clones.</li>
+<li>For cells with multiple clone barcodes detected, we resolved the
+assignment by evaluating the read abundance. Cells were first assigned
+to the clone barcode that accounted for over half of the detected PCR
+deduplicated reads.</li>
+<li>The remaining cells which did not meet the above criterion underwent
+further analysis based on average barcode edit distances. Here, cells
+were assigned to the clone barcode with the smallest average edit
+distance. In cases where distances were identical, the tie was broken in
+favour of the clone barcode with the higher read proportion.</li>
+</ol>
+</div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-      </div>
+        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
+    </nav>
+</div>
 
 </div>
 
